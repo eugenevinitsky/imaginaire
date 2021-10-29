@@ -1,0 +1,31 @@
+defaults:
+  - _self_
+  - override hydra/launcher: submitit_local
+
+config: /private/home/eugenevinitsky/Code/rl-model-generators/imaginaire_src/configs/projects/munit/mujoco/amp01_64x64.yaml
+logdir: null
+checkpoint: ''
+seed: 0
+device: 1
+local_rank: 0
+num_workers: 0
+gpus_per_node: 1
+num_nodes: 1
+experiment: test
+patch_wise: False
+profile: False
+
+hydra:
+  run:
+    dir: /checkpoint/eugenevinitsky/rl_model_gen/generators/test/${now:%Y.%m.%d}/${now:%H%M%S}_${experiment}
+  sweep:
+    dir: /checkpoint/eugenevinitsky/rl_model_gen/generators/sweep/${now:%Y.%m.%d}/${now:%H%M}_${experiment}
+    subdir: ${hydra.job.num}
+  launcher:
+    timeout_min: 4300
+    cpus_per_task: 10
+    gpus_per_node: ${gpus_per_node}
+    tasks_per_node: 1
+    mem_gb: 160
+    nodes: ${num_nodes}
+    submitit_folder: /checkpoint/eugenevinitsky/rl_model_gen/generators/sweep/${now:%Y.%m.%d}/${now:%H%M%S}_${experiment}/.slurm
