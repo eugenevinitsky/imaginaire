@@ -5,6 +5,7 @@ defaults:
 config: /private/home/eugenevinitsky/Code/rl-model-generators/imaginaire_src/configs/projects/munit/mujoco/amp01_64x64.yaml
 logdir: null
 checkpoint: ''
+resume: False
 seed: 0
 device: 1
 local_rank: 0

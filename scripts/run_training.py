@@ -43,11 +43,14 @@ def make_code_snap(experiment, code_path, slurm_dir='exp'):
             except:
                 shutil.copy(f, dst_dir / f.name)
     
-    dirs_to_copy = ['./configs/projects/munint/mujoco', './dataset/mujoco/train', './imaginaire']
+    dirs_to_copy = ['./configs/projects/munint/mujoco', './dataset/mujoco/train',
+                    './configs/projects/munint/robonet', './dataset/robonet/train',
+                    './imaginaire']
     src_dir = pathlib.Path.cwd()
     for dir in dirs_to_copy:
         copy_dir(dir, '*')
-    copy_dir('./', 'train.py')
+    copy_dir('./', 'train_copy.py')
+    copy_dir('./', 'main_worker.py')
     copy_dir('./', 'config.yaml')
     
     return snap_dir 
@@ -74,7 +77,7 @@ def main():
     overrides.add('hydra.sweep.dir', [save_path])
     overrides.add('experiment', [args.experiment])
     
-    cmd = ['python', str(snap_dir / 'code' / 'train.py'), '-m']
+    cmd = ['python', str(snap_dir / 'code' / 'train_copy.py'), '-m']
     print(cmd)
     cmd += overrides.cmd()
 

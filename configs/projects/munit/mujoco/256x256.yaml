@@ -85,14 +85,14 @@ data:
     input_types:
         - images_a:
             # If not specified, is None by default.
-            ext: jpg
+            ext: png
             # If not specified, is None by default.
             num_channels: 3
             # If not specified, is None by default.
             normalize: True
         - images_b:
             # If not specified, is None by default.
-            ext: jpg
+            ext: png
             # If not specified, is None by default.
             num_channels: 3
             # If not specified, is None by default.
@@ -102,7 +102,7 @@ data:
     train:
         # Input LMDBs.
         roots:
-            - /private/home/eugenevinitsky/Code/github-clones/imaginaire/dataset/mujoco_large/train
+            - /private/home/eugenevinitsky/Code/github-clones/imaginaire/dataset/mujoco_raw/train
         # Batch size per GPU.
         batch_size: 16
         # Data augmentations to be performed in given order.
@@ -110,7 +110,7 @@ data:
             # First resize all inputs to this size.
             resize_h_w: 256, 256
             # Horizontal flip?
-            horizontal_flip: True
+            horizontal_flip: False
             # Crop size.
             random_crop_h_w: 256, 256
 
@@ -118,7 +118,7 @@ data:
     val:
         # Input LMDBs.
         roots:
-            - /private/home/eugenevinitsky/Code/github-clones/imaginaire/dataset/mujoco_large/test
+            - /private/home/eugenevinitsky/Code/github-clones/imaginaire/dataset/mujoco_raw/test
         # Batch size per GPU.
         batch_size: 16
         # If resize_h_w is not given, then it is assumed to be same as crop_h_w.
@@ -127,16 +127,16 @@ data:
 
 test_data:
     # Name of this dataset.
-    name: mujoco_large
+    name: mujoco
     # Which dataloader to use?
     type: imaginaire.datasets.unpaired_images
     input_types:
         - images_a:
-              ext: jpg
+              ext: png
               num_channels: 3
               normalize: True
         - images_b:
-              ext: jpg
+              ext: png
               num_channels: 3
               normalize: True
 
@@ -146,7 +146,7 @@ test_data:
     test:
         is_lmdb: False
         roots:
-            - /private/home/eugenevinitsky/Code/github-clones/imaginaire/dataset/mujoco_large/test
+            - /private/home/eugenevinitsky/Code/github-clones/imaginaire/dataset/mujoco_raw/test
         # Batch size per GPU.
         batch_size: 1
         # If resize_h_w is not given, then it is assumed to be same as crop_h_w.
