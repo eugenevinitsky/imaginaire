@@ -129,7 +129,7 @@ class Meter(object):
             value = float(sum(filtered_values)) / float(len(filtered_values))
             if is_master():
                 write_summary(self.name, value, step)
-                wandb.log({self.name: value}, step=step)
+                # wandb.log({self.name: value}, step=step)
         self.reset()
 
     @master_only

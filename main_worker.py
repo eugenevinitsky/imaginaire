@@ -91,7 +91,7 @@ def main_worker(gpu, hydra_cfg):
                 if current_iteration >= cfg.max_iter:
                     print('Done with training!!!')
                     return
-            if args.profile:
+            if hydra_cfg.profile:
                 print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=20))
                 prof.export_chrome_trace(os.path.join(cfg.logdir, "trace.json"))
             try:

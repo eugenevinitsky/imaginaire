@@ -104,7 +104,7 @@ data:
         roots:
             - /private/home/eugenevinitsky/Code/github-clones/imaginaire/dataset/mujoco_raw/train
         # Batch size per GPU.
-        batch_size: 16
+        batch_size: 8
         # Data augmentations to be performed in given order.
         augmentations:
             # First resize all inputs to this size.
@@ -120,7 +120,7 @@ data:
         roots:
             - /private/home/eugenevinitsky/Code/github-clones/imaginaire/dataset/mujoco_raw/test
         # Batch size per GPU.
-        batch_size: 16
+        batch_size: 8
         # If resize_h_w is not given, then it is assumed to be same as crop_h_w.
         augmentations:
             center_crop_h_w: 256, 256
