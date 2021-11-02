@@ -25,7 +25,6 @@ class Overrides(object):
 
 
 def make_code_snap(experiment, code_path, slurm_dir='exp'):
-    now = datetime.now()
     if len(code_path) > 0:
         snap_dir = pathlib.Path(code_path) / slurm_dir
     else:
@@ -43,8 +42,8 @@ def make_code_snap(experiment, code_path, slurm_dir='exp'):
             except:
                 shutil.copy(f, dst_dir / f.name)
     
-    dirs_to_copy = ['./configs/projects/munint/mujoco', './dataset/mujoco/train',
-                    './configs/projects/munint/robonet', './dataset/robonet/train',
+    dirs_to_copy = ['./configs/projects/munit/mujoco', #'./dataset/mujoco_raw/train',
+                    './configs/projects/munit/robonet', #'./dataset/robonet_raw/train',
                     './imaginaire']
     src_dir = pathlib.Path.cwd()
     for dir in dirs_to_copy:
@@ -71,6 +70,7 @@ def main():
     print(str(snap_dir))
     overrides = Overrides()
     overrides.add('gpus_per_node', [4])
+    # TODO(eugenevinitsky) get the cfg path from snag
     overrides.add('config', [args.cfg_path])
     overrides.add('hydra/launcher', ['submitit_slurm'])
     overrides.add('hydra.launcher.partition', ['learnlab'])

@@ -548,7 +548,7 @@ class BaseTrainer(object):
             if self.cfg.trainer.image_to_tensorboard:
                 self.image_meter.write_image(image_grid, self.current_iteration)
             torchvision.utils.save_image(image_grid, path, nrow=1)
-            # wandb.log({os.path.splitext(os.path.basename(path))[0]: [wandb.Image(path)]})
+            wandb.log({os.path.splitext(os.path.basename(path))[0]: [wandb.Image(path)]})
 
     def write_metrics(self):
         r"""Write metrics to the tensorboard."""

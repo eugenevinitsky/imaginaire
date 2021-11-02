@@ -15,6 +15,10 @@ num_nodes: 1
 experiment: test
 patch_wise: False
 profile: False
+wandb: True
+wandb_name: imaginaire
+wandb_id: eugenevinitsky
+debug: False
 
 hydra:
   run:
