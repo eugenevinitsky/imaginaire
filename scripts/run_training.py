@@ -72,6 +72,7 @@ def main():
     overrides.add('gpus_per_node', [4])
     # TODO(eugenevinitsky) get the cfg path from snag
     overrides.add('config', [args.cfg_path])
+    overrides.add('wandb_id', [args.experiment])
     overrides.add('hydra/launcher', ['submitit_slurm'])
     overrides.add('hydra.launcher.partition', ['learnlab'])
     overrides.add('hydra.sweep.dir', [save_path])

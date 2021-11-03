@@ -17,7 +17,8 @@ patch_wise: False
 profile: False
 wandb: True
 wandb_name: imaginaire
-wandb_id: eugenevinitsky
+wandb_id: null
+wandb_group: debugv2
 debug: False
 
 hydra:

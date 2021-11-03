@@ -84,6 +84,7 @@ def main_worker(gpu, hydra_cfg):
         wandb.init(id=wandb_id,
                    project=hydra_cfg.wandb_name,
                    config=cfg,
+                   group=hydra_cfg.wandb_group,
                    name=os.path.basename(cfg.logdir),
                    resume="allow",
                    settings=wandb.Settings(start_method="fork"),
