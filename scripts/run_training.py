@@ -60,6 +60,7 @@ def main():
     parser.add_argument('experiment', type=str)
     parser.add_argument('cfg_path', type=str)
     parser.add_argument('--dry', action='store_true')
+    parser.add_argument('--patch_wise', action='store_true')
     args = parser.parse_args()
    
     now = datetime.now()
@@ -69,6 +70,8 @@ def main():
     snap_dir = make_code_snap(args.experiment, save_path)
     print(str(snap_dir))
     overrides = Overrides()
+    if args.patch_wise:
+        overrides.add('patch_wise', [True])
     overrides.add('gpus_per_node', [4])
     # TODO(eugenevinitsky) get the cfg path from snag
     overrides.add('config', [args.cfg_path])

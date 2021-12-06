@@ -22,6 +22,8 @@ def main_worker(gpu, hydra_cfg):
     set_affinity(gpu)
     set_random_seed(hydra_cfg.seed, by_rank=True)
     cfg = Config(hydra_cfg.config)
+    if hydra_cfg.patch_wise:
+        cfg.dis.patch_wise = True
     try:
         from userlib.auto_resume import AutoResume
         AutoResume.init()

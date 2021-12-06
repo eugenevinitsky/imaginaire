@@ -18,7 +18,7 @@ profile: False
 wandb: True
 wandb_name: imaginaire
 wandb_id: null
-wandb_group: debugv2
+wandb_group: debugv3
 debug: False
 
 hydra:

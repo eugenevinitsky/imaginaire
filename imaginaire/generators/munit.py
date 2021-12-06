@@ -108,7 +108,7 @@ class Generator(nn.Module):
 
         return net_G_output
 
-    def inference(self, data, a2b=True, random_style=True):
+    def inference(self, data, a2b=True, random_style=True, device='cuda'):
         r"""MUNIT inference.
 
         Args:
@@ -137,7 +137,7 @@ class Generator(nn.Module):
         if random_style:
             style_channels = self.autoencoder_a.style_channels
             style = torch.randn(content.size(0), style_channels, 1, 1,
-                                device=torch.device('cuda'))
+                                device=torch.device(device))
             file_names = data['key'][input_key]['filename']
         else:
             style_key = 'images_b' if a2b else 'images_a'
@@ -195,6 +195,8 @@ class AutoEncoder(nn.Module):
                  latent_dim=8,
                  num_res_blocks=4,
                  num_mlp_blocks=2,
+                 num_presamples_style=0,
+                 num_presamples_content=0,
                  num_downsamples_style=4,
                  num_downsamples_content=2,
                  num_image_channels=3,
@@ -212,7 +214,8 @@ class AutoEncoder(nn.Module):
             if key != 'type':
                 warnings.warn(
                     "Generator argument '{}' is not used.".format(key))
-        self.style_encoder = StyleEncoder(num_downsamples_style,
+        self.style_encoder = StyleEncoder(num_presamples_style,
+                                          num_downsamples_style,
                                           num_image_channels,
                                           num_filters,
                                           latent_dim,
@@ -220,7 +223,8 @@ class AutoEncoder(nn.Module):
                                           style_norm_type,
                                           weight_norm_type,
                                           'relu')
-        self.content_encoder = ContentEncoder(num_downsamples_content,
+        self.content_encoder = ContentEncoder(num_presamples_content,
+                                              num_downsamples_content,
                                               num_res_blocks,
                                               num_image_channels,
                                               num_filters,
@@ -230,7 +234,8 @@ class AutoEncoder(nn.Module):
                                               weight_norm_type,
                                               'relu',
                                               pre_act)
-        self.decoder = Decoder(num_downsamples_content,
+        self.decoder = Decoder(num_presamples_content,
+                               num_downsamples_content,
                                num_res_blocks,
                                self.content_encoder.output_dim,
                                num_image_channels,
@@ -306,7 +311,7 @@ class StyleEncoder(nn.Module):
         nonlinearity (str): Type of nonlinear activation function.
     """
 
-    def __init__(self, num_downsamples, num_image_channels, num_filters,
+    def __init__(self, num_presamples, num_downsamples, num_image_channels, num_filters,
                  style_channels, padding_mode, activation_norm_type,
                  weight_norm_type, nonlinearity):
         super().__init__()
@@ -318,6 +323,10 @@ class StyleEncoder(nn.Module):
         model = []
         model += [Conv2dBlock(num_image_channels, num_filters, 7, 1, 3,
                               **conv_params)]
+        # TODO(eugenevinitsky) maybe this should go after the following block?
+        for i in range(num_presamples):
+            model += [Conv2dBlock(num_filters, num_filters, 4, 1, 1,
+                                  **conv_params)]
         for i in range(2):
             model += [Conv2dBlock(num_filters, 2 * num_filters, 4, 2, 1,
                                   **conv_params)]
@@ -347,6 +356,8 @@ class Decoder(nn.Module):
     - output layer.
 
     Args:
+        num_presamples (int): How many processing blocks we have after the resolution
+            has been increased.
         num_upsamples (int): Number of times we increase resolution by 2x2.
         num_res_blocks (int): Number of residual blocks.
         num_filters (int): Base filter numbers.
@@ -366,6 +377,7 @@ class Decoder(nn.Module):
     """
 
     def __init__(self,
+                 num_presamples, 
                  num_upsamples,
                  num_res_blocks,
                  num_filters,
@@ -406,6 +418,12 @@ class Decoder(nn.Module):
         for i in range(num_upsamples):
             self.decoder += [NearestUpsample(scale_factor=2)]
             self.decoder += [Conv2dBlock(num_filters, num_filters // 2,
+                                         5, 1, 2, **conv_params)]
+            num_filters //= 2
+        # TODO(eugenevinitsky) not correct, also, do we want to decrease filters too?
+        # Convolutional blocks with upsampling.
+        for i in range(num_presamples):
+            self.decoder += [Conv2dBlock(num_filters, num_filters,
                                          5, 1, 2, **conv_params)]
             num_filters //= 2
         self.decoder += [Conv2dBlock(num_filters, num_image_channels, 7, 1, 3,

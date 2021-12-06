@@ -46,7 +46,7 @@ class ModelAverage(nn.Module):
     """
     def __init__(
             self, module, beta=0.9999, start_iteration=1000,
-            remove_wn_wrapper=True
+            remove_wn_wrapper=True, device='cuda'
     ):
         super(ModelAverage, self).__init__()
         self.module = module
@@ -54,7 +54,7 @@ class ModelAverage(nn.Module):
         # the original elements.
         # A deep copy creates a new object and recursively adds the copies of
         # nested objects present in the original elements.
-        self.averaged_model = copy.deepcopy(self.module).to('cuda')
+        self.averaged_model = copy.deepcopy(self.module).to(device)
         self.beta = beta
         self.remove_wn_wrapper = remove_wn_wrapper
         self.start_iteration = start_iteration
@@ -63,7 +63,7 @@ class ModelAverage(nn.Module):
         # the averaging after.
         self.register_buffer('num_updates_tracked',
                              torch.tensor(0, dtype=torch.long))
-        self.num_updates_tracked = self.num_updates_tracked.to('cuda')
+        self.num_updates_tracked = self.num_updates_tracked.to(device)
         # if self.remove_sn:
         #     # If we want to remove the spectral norm, we first copy the
         #     # weights to the moving average model.

@@ -172,6 +172,7 @@ class ContentEncoder(nn.Module):
     - output layer.
 
     Args:
+        num_presamples (int): Number of non-downsampled layers before the downsampling
         num_downsamples (int): Number of times we reduce
             resolution by 2x2.
         num_res_blocks (int): Number of residual blocks at the end of the
@@ -187,6 +188,7 @@ class ContentEncoder(nn.Module):
     """
 
     def __init__(self,
+                 num_presamples,
                  num_downsamples,
                  num_res_blocks,
                  num_image_channels,
@@ -213,6 +215,13 @@ class ContentEncoder(nn.Module):
         model = []
         model += [Conv2dBlock(num_image_channels, num_filters, 7, 1, 3,
                               **conv_params)]
+
+        # Pre-downsampling blocks
+        for i in range(num_presamples):
+            num_filters_prev = num_filters
+            num_filters = min(num_filters * 2, max_num_filters)
+            model += [Conv2dBlock(num_filters_prev, num_filters, 4, 1, 1,
+                                  **conv_params)]
 
         # Downsampling blocks.
         for i in range(num_downsamples):

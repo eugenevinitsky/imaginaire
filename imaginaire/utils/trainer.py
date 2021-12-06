@@ -63,7 +63,7 @@ def get_trainer(cfg, net_G, net_D=None,
     return trainer
 
 
-def get_model_optimizer_and_scheduler(cfg, seed=0):
+def get_model_optimizer_and_scheduler(cfg, seed=0, device='cuda'):
     r"""Return the networks, the optimizers, and the schedulers. We will
     first set the random seed to a fixed value so that each GPU copy will be
     initialized to have the same network weights. We will then use different
@@ -106,8 +106,8 @@ def get_model_optimizer_and_scheduler(cfg, seed=0):
     # for name, p in net_G.named_parameters():
     #     if 'modulation' in name and 'bias' in name:
     #         nn.init.constant_(p.data, 1.)
-    net_G = net_G.to('cuda')
-    net_D = net_D.to('cuda')
+    net_G = net_G.to(device)
+    net_D = net_D.to(device)
     # Different GPU copies of the same model will receive noises
     # initialized with different random seeds (if applicable) thanks to the
     # set_random_seed command (GPU #K has random seed = args.seed + K).
@@ -120,7 +120,7 @@ def get_model_optimizer_and_scheduler(cfg, seed=0):
     opt_D = get_optimizer(cfg.dis_opt, net_D)
 
     net_G, net_D, opt_G, opt_D = \
-        wrap_model_and_optimizer(cfg, net_G, net_D, opt_G, opt_D)
+        wrap_model_and_optimizer(cfg, net_G, net_D, opt_G, opt_D, device)
 
     # Scheduler
     sch_G = get_scheduler(cfg.gen_opt, opt_G)
@@ -129,7 +129,7 @@ def get_model_optimizer_and_scheduler(cfg, seed=0):
     return net_G, net_D, opt_G, opt_D, sch_G, sch_D
 
 
-def wrap_model_and_optimizer(cfg, net_G, net_D, opt_G, opt_D):
+def wrap_model_and_optimizer(cfg, net_G, net_D, opt_G, opt_D, device='cuda'):
     r"""Wrap the networks and the optimizers with AMP DDP and (optionally)
     model average.
 
@@ -157,7 +157,8 @@ def wrap_model_and_optimizer(cfg, net_G, net_D, opt_G, opt_D):
             print(f"EMA Decay Factor: {cfg.trainer.model_average_config.beta}")
         net_G = ModelAverage(net_G, cfg.trainer.model_average_config.beta,
                              cfg.trainer.model_average_config.start_iteration,
-                             cfg.trainer.model_average_config.remove_sn)
+                             cfg.trainer.model_average_config.remove_sn,
+                             device)
     if cfg.trainer.model_average_config.enabled:
         net_G_module = net_G.module
     else:
@@ -205,6 +206,7 @@ def _wrap_model(cfg, model):
         (obj): Wrapped PyTorch network model.
     """
     if torch.distributed.is_available() and dist.is_initialized():
+        print('Data Parallel Wrapping')
         # ddp = cfg.trainer.distributed_data_parallel
         find_unused_parameters = cfg.trainer.distributed_data_parallel_params.find_unused_parameters
         return torch.nn.parallel.DistributedDataParallel(
